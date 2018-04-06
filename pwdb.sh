@@ -30,7 +30,7 @@ usage()
 {
 	echo "usage: pwdb command args ..."
 	echo
-	echo "	add <name>"
+	echo "	add <name> <username>"
 	echo "	del <name>"
 	echo "	gen"
 	echo "	list"
@@ -86,17 +86,20 @@ pwdb_show()
 
 pwdb_add()
 {
-	local name password
+	local name username password
 
 	name="$1"
 	[ -n "${name}" ] || die "Missing name."
+
+	username="$2"
+	[ -n "${username}" ] || die "Missing username."
 
 	password=`pwdb_show "${name}"`
 	[ -z "${password}" ] || die "You must delete old password."
 
 	password=`pwdb_new`
 
-	(pwdb_read && echo "${name}: ${password}") | pwdb_write || exit 1
+	(pwdb_read && echo "${name}: ${username} ${password}") | pwdb_write || exit 1
 
 	echo "${password}"
 }
@@ -121,7 +124,7 @@ pwdb_list()
 
 case "$1" in
 "add")
-	pwdb_add "$2"
+	pwdb_add "$2" "$3"
 	;;
 "del")
 	pwdb_del "$2"
