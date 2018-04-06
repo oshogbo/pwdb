@@ -52,7 +52,7 @@ pwdb_read()
 
 pwdb_write()
 {
-	gpg --encrypt --recipient "${PWDB_ID}" --output "${PWDB_PATH}.new"
+	gpg --encrypt --recipient "${PWDB_ID}" --output "${PWDB_PATH}.new" 2>/dev/null
 	[ $? -eq 0 ] || die "GnuPG returned invalid value."
 	mv "${PWDB_PATH}.new" "${PWDB_PATH}"
 }
