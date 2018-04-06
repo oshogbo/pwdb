@@ -46,16 +46,21 @@ die()
 	exit 1
 }
 
+sshcmd()
+{
+	ssh -q "${PWDB_HOST}" $*
+}
+
 pwdb_read()
 {
-	gpg --decrypt "${PWDB_PATH}" 2>/dev/null
+	sshcmd "cat ${PWDB_PATH}" | gpg --decrypt 2>/dev/null
 }
 
 pwdb_write()
 {
-	gpg --encrypt --recipient "${PWDB_ID}" --output "${PWDB_PATH}.new" 2>/dev/null
+	gpg --encrypt --recipient "${PWDB_ID}" 2>/dev/null | sshcmd "cat > ${PWDB_PATH}.new; "
 	[ $? -eq 0 ] || die "GnuPG returned invalid value."
-	mv "${PWDB_PATH}.new" "${PWDB_PATH}"
+	sshcmd mv "${PWDB_PATH}.new" "${PWDB_PATH}" || die "Unable to store new value."
 }
 
 pwdb_new()
@@ -121,7 +126,7 @@ pwdb_list()
 }
 
 [ -n "${PWDB_ID}" ] || die "Missing identity."
-[ -f "${PWDB_PATH}" ] || die "Missing database file."
+[ -n "${PWDB_HOST}" ] || die "Missing remote server."
 
 case "$1" in
 "add")
