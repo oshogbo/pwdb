@@ -31,9 +31,9 @@ usage()
 	echo "	add <name>"
 	echo "	del <name>"
 	echo "	gen"
-	echo "	get <name>"
 	echo "	list"
-	echo "  show <name>"
+	echo "	get <name>"
+	echo "	show <name>"
 	exit 1
 }
 
@@ -55,16 +55,6 @@ pwdb_write()
 	mv "${PWDB_PATH}.new" "${PWDB_PATH}"
 }
 
-pwdb_clip()
-{
-	local password
-
-	read password
-	[ -n "${password}" ] || exit 1
-	echo "${password}" | xclip -l 1
-	echo "Password successfully copied."
-}
-
 pwdb_new()
 {
 	local password
@@ -79,17 +69,7 @@ pwdb_new()
 
 pwdb_gen()
 {
-	pwdb_new | pwdb_clip
-}
-
-pwdb_get()
-{
-	local name
-
-	name="$1"
-	[ -n "${name}" ] || die "Missing name."
-
-	pwdb_show "${name}" | pwdb_clip
+	pwdb_new
 }
 
 pwdb_show()
@@ -114,9 +94,9 @@ pwdb_add()
 
 	password=`pwdb_new`
 
-	(pwdb_read && echo "${name}:${password}") | pwdb_write || exit 1
+	(pwdb_read && echo "${name}: ${password}") | pwdb_write || exit 1
 
-	echo "${password}" | pwdb_clip
+	echo "${password}"
 }
 
 pwdb_del()
@@ -144,14 +124,11 @@ case "$1" in
 "del")
 	pwdb_del "$2"
 	;;
-"gen")
-	pwdb_gen
-	;;
-"get")
-	pwdb_get "$2"
-	;;
 "list")
 	pwdb_list
+	;;
+"get")
+	pwdb_show "$2"
 	;;
 "show")
 	pwdb_show "$2"
