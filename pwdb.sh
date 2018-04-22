@@ -33,6 +33,7 @@ usage()
 	echo
 	echo "	add <name> <username>"
 	echo "	del <name>"
+	echo "	change <name> <username> <password>"
 	echo "	gen"
 	echo "	list"
 	echo "	get <name>"
@@ -73,6 +74,20 @@ pwdb_new()
 	fi
 
 	echo "${password}"
+}
+
+pwdb_change()
+{
+	name="$1"
+	[ -n "${name}" ] || die "Missing name."
+
+	username="$2"
+	[ -n "${username}" ] || die "Missing username."
+
+	password="$3"
+	[ -n "${password}" ] || die "Missing password."
+
+	(pwdb_read | grep -v "^${name}: " && echo "${name}: ${username} ${password}") | pwdb_write || exit 1
 }
 
 pwdb_gen()
@@ -134,6 +149,9 @@ case "$1" in
 	;;
 "del")
 	pwdb_del "$2"
+	;;
+"change")
+	pwdb_change "$2" "$3" "$4"
 	;;
 "list")
 	pwdb_list
